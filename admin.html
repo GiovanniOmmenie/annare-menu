@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin — Pizzeria Annarè</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --dark:   #1C1914;
+      --accent: #C4392A;
+      --cream:  #FDFAF5;
+      --cream2: #F5EDE0;
+      --text:   #1C1410;
+      --muted:  #7A6B5E;
+      --border: #E8DDD0;
+      --green:  #2E7D4F;
+      --green-bg: rgba(46,125,79,.1);
+      --red-bg: rgba(196,57,42,.1);
+      --yellow: #B07D2A;
+      --yellow-bg: rgba(176,125,42,.1);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      min-height: 100vh;
+      background: var(--dark);
+      background-image:
+        radial-gradient(ellipse 80% 60% at 20% 80%, rgba(196,57,42,.08) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 50% at 80% 20%, rgba(255,255,255,.03) 0%, transparent 50%);
+      font-family: 'DM Sans', sans-serif;
+      color: var(--text);
+    }
+
+    /* ── LOGIN OVERLAY ── */
+    #login-screen {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px 16px;
+    }
+
+    .login-card {
+      background: var(--cream);
+      border-radius: 24px;
+      padding: 48px 40px;
+      width: 100%;
+      max-width: 400px;
+      box-shadow: 0 4px 24px rgba(0,0,0,.3);
+      text-align: center;
+    }
+
+    .login-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+
+    .login-sub {
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 36px;
+    }
+
+    .login-label {
+      display: block;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 8px;
+      text-align: left;
+    }
+
+    .login-input {
+      width: 100%;
+      padding: 13px 16px;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.9375rem;
+      background: var(--cream2);
+      color: var(--text);
+      outline: none;
+      transition: border-color .2s;
+      margin-bottom: 20px;
+    }
+    .login-input:focus { border-color: var(--accent); }
+    .login-input.error { border-color: var(--accent); }
+
+    .login-error {
+      font-size: 0.8125rem;
+      color: var(--accent);
+      margin-bottom: 16px;
+      display: none;
+    }
+
+    .btn-login {
+      width: 100%;
+      padding: 14px;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.875rem;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background .2s, transform .15s;
+    }
+    .btn-login:hover { background: #A8301E; transform: translateY(-1px); }
+
+    /* ── ADMIN PANEL ── */
+    #admin-panel { display: none; }
+
+    .admin-header {
+      background: var(--dark);
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      border-bottom: 1px solid rgba(255,255,255,.07);
+    }
+
+    .admin-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .admin-title span {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      display: block;
+      margin-top: 1px;
+    }
+
+    .btn-logout {
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.12);
+      color: rgba(255,255,255,.6);
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: .08em;
+      cursor: pointer;
+      transition: background .2s, color .2s;
+    }
+    .btn-logout:hover { background: rgba(255,255,255,.14); color: #fff; }
+
+    .admin-body {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 32px 16px 60px;
+    }
+
+    /* ── STATS ROW ── */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+
+    .stat-card {
+      background: var(--cream);
+      border-radius: 16px;
+      padding: 18px 16px;
+      text-align: center;
+      box-shadow: 0 2px 12px rgba(0,0,0,.18);
+    }
+
+    .stat-num {
+      font-family: 'Playfair Display', serif;
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+
+    .stat-label {
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    /* ── FILTERS ── */
+    .filters {
+      background: var(--cream);
+      border-radius: 16px;
+      padding: 18px 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 12px rgba(0,0,0,.18);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: flex-end;
+    }
+
+    .filter-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      flex: 1;
+      min-width: 140px;
+    }
+
+    .filter-label {
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .filter-select, .filter-input {
+      padding: 9px 12px;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.875rem;
+      background: var(--cream2);
+      color: var(--text);
+      outline: none;
+      cursor: pointer;
+      transition: border-color .2s;
+    }
+    .filter-select:focus, .filter-input:focus { border-color: var(--accent); }
+
+    .btn-clear-filters {
+      padding: 9px 18px;
+      background: transparent;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--muted);
+      cursor: pointer;
+      transition: border-color .2s, color .2s;
+      align-self: flex-end;
+    }
+    .btn-clear-filters:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* ── BOOKINGS LIST ── */
+    .bookings-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+
+    .bookings-count {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: rgba(255,255,255,.5);
+      letter-spacing: .05em;
+    }
+
+    .btn-delete-all {
+      background: rgba(196,57,42,.15);
+      border: 1px solid rgba(196,57,42,.3);
+      color: #e07060;
+      padding: 7px 14px;
+      border-radius: 20px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.72rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .2s;
+    }
+    .btn-delete-all:hover { background: rgba(196,57,42,.28); }
+
+    .empty-state {
+      background: var(--cream);
+      border-radius: 16px;
+      padding: 60px 24px;
+      text-align: center;
+      box-shadow: 0 2px 12px rgba(0,0,0,.18);
+    }
+    .empty-state p {
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-size: 1.1rem;
+      color: var(--muted);
+    }
+
+    /* ── BOOKING CARD ── */
+    .booking-card {
+      background: var(--cream);
+      border-radius: 16px;
+      margin-bottom: 12px;
+      box-shadow: 0 2px 12px rgba(0,0,0,.18);
+      overflow: hidden;
+      transition: transform .15s;
+    }
+
+    .booking-card-inner {
+      padding: 18px 20px;
+    }
+
+    .booking-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .booking-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1.2;
+    }
+
+    .booking-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 4px;
+    }
+
+    .booking-pill {
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: .06em;
+      padding: 3px 10px;
+      border-radius: 20px;
+      background: var(--cream2);
+      color: var(--muted);
+    }
+    .booking-pill.date { color: var(--text); background: var(--cream2); }
+
+    .status-badge {
+      flex-shrink: 0;
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      padding: 5px 12px;
+      border-radius: 20px;
+    }
+    .status-badge.pending  { background: var(--yellow-bg); color: var(--yellow); }
+    .status-badge.confirmed { background: var(--green-bg); color: var(--green); }
+    .status-badge.refused  { background: var(--red-bg); color: var(--accent); }
+
+    .booking-details {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px 16px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+    }
+
+    .detail-item {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+    }
+
+    .detail-key {
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .detail-val {
+      font-size: 0.8125rem;
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    .detail-val a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    .detail-val a:hover { text-decoration: underline; }
+
+    .notes-row {
+      grid-column: 1 / -1;
+    }
+
+    .booking-actions {
+      display: flex;
+      gap: 8px;
+      padding: 12px 20px 16px;
+      border-top: 1px solid var(--border);
+      background: rgba(245,237,224,.4);
+      flex-wrap: wrap;
+    }
+
+    .btn-action {
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: .06em;
+      cursor: pointer;
+      border: none;
+      transition: opacity .15s, transform .1s;
+    }
+    .btn-action:hover { opacity: .85; transform: translateY(-1px); }
+    .btn-action:active { transform: translateY(0); }
+
+    .btn-confirm  { background: var(--green-bg); color: var(--green); border: 1.5px solid rgba(46,125,79,.25); }
+    .btn-refuse   { background: var(--red-bg);   color: var(--accent); border: 1.5px solid rgba(196,57,42,.25); }
+    .btn-delete   { background: rgba(0,0,0,.06); color: var(--muted);  border: 1.5px solid var(--border); margin-left: auto; }
+
+    /* ── TOAST ── */
+    #toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(12px);
+      background: var(--dark);
+      color: #fff;
+      padding: 12px 24px;
+      border-radius: 30px;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      box-shadow: 0 4px 20px rgba(0,0,0,.4);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .25s, transform .25s;
+      white-space: nowrap;
+      z-index: 999;
+    }
+    #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    @media (max-width: 480px) {
+      .stats-row { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+      .stat-num { font-size: 1.6rem; }
+      .booking-details { grid-template-columns: 1fr; }
+      .booking-actions { gap: 6px; }
+      .btn-delete { margin-left: 0; }
+      .login-card { padding: 36px 24px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── LOGIN SCREEN ── -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">Annarè</div>
+    <div class="login-sub">Pannello Gestore</div>
+    <label class="login-label" for="pwd-input">Password</label>
+    <input type="password" id="pwd-input" class="login-input" placeholder="••••••••" autocomplete="current-password">
+    <div class="login-error" id="login-error">Password errata. Riprova.</div>
+    <button class="btn-login" onclick="doLogin()">Accedi</button>
+  </div>
+</div>
+
+<!-- ── ADMIN PANEL ── -->
+<div id="admin-panel">
+
+  <header class="admin-header">
+    <div class="admin-title">
+      Pizzeria Annarè
+      <span>Gestione Prenotazioni</span>
+    </div>
+    <button class="btn-logout" onclick="doLogout()">Esci</button>
+  </header>
+
+  <div class="admin-body">
+
+    <!-- Stats -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-num" id="stat-total">0</div>
+        <div class="stat-label">Prenotazioni</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" id="stat-today">0</div>
+        <div class="stat-label">Oggi</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" id="stat-people">0</div>
+        <div class="stat-label">Coperti totali</div>
+      </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="filters">
+      <div class="filter-group">
+        <span class="filter-label">Data</span>
+        <input type="date" id="filter-date" class="filter-input">
+      </div>
+      <div class="filter-group">
+        <span class="filter-label">Fascia oraria</span>
+        <select id="filter-slot" class="filter-select">
+          <option value="">Tutte</option>
+          <option value="20:00">20:00</option>
+          <option value="21:30">21:30</option>
+        </select>
+      </div>
+      <button class="btn-clear-filters" onclick="clearFilters()">Azzera filtri</button>
+    </div>
+
+    <!-- Bookings -->
+    <div class="bookings-header">
+      <span class="bookings-count" id="bookings-count"></span>
+      <button class="btn-delete-all" onclick="deleteAll()">Elimina tutte</button>
+    </div>
+
+    <div id="bookings-list"></div>
+
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<script>
+  const ADMIN_PASSWORD = 'annare2025';
+  let   BOOKINGS       = [];  // cache locale aggiornata dal server
+
+  /* ── AUTH ── */
+  async function doLogin() {
+    const pwd = document.getElementById('pwd-input').value;
+    const err = document.getElementById('login-error');
+    const inp = document.getElementById('pwd-input');
+    if (pwd === ADMIN_PASSWORD) {
+      document.getElementById('login-screen').style.display = 'none';
+      document.getElementById('admin-panel').style.display  = 'block';
+      await loadAndRender();
+    } else {
+      err.style.display = 'block';
+      inp.classList.add('error');
+      inp.value = '';
+      setTimeout(() => { err.style.display='none'; inp.classList.remove('error'); }, 3000);
+    }
+  }
+
+  document.getElementById('pwd-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') doLogin();
+  });
+
+  function doLogout() {
+    document.getElementById('admin-panel').style.display  = 'none';
+    document.getElementById('login-screen').style.display = 'flex';
+    document.getElementById('pwd-input').value = '';
+  }
+
+  /* ── API ── */
+  async function loadAndRender() {
+    try {
+      const res = await fetch('/api/bookings');
+      BOOKINGS  = await res.json();
+    } catch {
+      BOOKINGS  = [];
+    }
+    render();
+  }
+
+  async function updateStatus(id, status) {
+    await fetch(`/api/bookings/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status })
+    });
+    const b = BOOKINGS.find(x => String(x.id) === String(id));
+    if (b) b.status = status;
+    render();
+    const labels = { confirmed: 'Confermata ✓', refused: 'Rifiutata', pending: 'In attesa' };
+    showToast(labels[status] || 'Aggiornata');
+  }
+
+  function deleteBooking(id) {
+    const card = document.getElementById('card-' + id);
+    if (card) {
+      card.style.transition = 'opacity .18s, transform .18s';
+      card.style.opacity    = '0';
+      card.style.transform  = 'scale(.97)';
+      setTimeout(async () => {
+        await fetch(`/api/bookings/${id}`, { method: 'DELETE' });
+        BOOKINGS = BOOKINGS.filter(x => String(x.id) !== String(id));
+        card.remove();
+        updateStats();
+        updateCount();
+      }, 180);
+    }
+    showToast('Prenotazione eliminata');
+  }
+
+  async function deleteAll() {
+    const visible = getFiltered();
+    if (!visible.length) return;
+    if (!confirm(`Eliminare ${visible.length} prenotazione/i visibile/i?`)) return;
+    await Promise.all(visible.map(b =>
+      fetch(`/api/bookings/${b.id}`, { method: 'DELETE' })
+    ));
+    const ids = new Set(visible.map(b => String(b.id)));
+    BOOKINGS = BOOKINGS.filter(b => !ids.has(String(b.id)));
+    render();
+    showToast('Prenotazioni eliminate');
+  }
+
+  function clearFilters() {
+    document.getElementById('filter-date').value   = '';
+    document.getElementById('filter-slot').value   = '';
+    document.getElementById('filter-status').value = '';
+    render();
+  }
+
+  function updateStats() {
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('stat-total').textContent  = BOOKINGS.length;
+    document.getElementById('stat-today').textContent  = BOOKINGS.filter(b => b.date === today).length;
+    document.getElementById('stat-people').textContent = BOOKINGS.reduce((s, b) => s + (parseInt(b.people) || 0), 0);
+  }
+
+  function updateCount() {
+    const remaining = document.querySelectorAll('#bookings-list .booking-card').length;
+    const countEl   = document.getElementById('bookings-count');
+    countEl.textContent = remaining ? `${remaining} prenotazion${remaining === 1 ? 'e' : 'i'}` : '';
+    if (!remaining) {
+      document.getElementById('bookings-list').innerHTML =
+        `<div class="empty-state"><p>Nessuna prenotazione trovata.</p></div>`;
+    }
+  }
+
+  /* ── FILTER ── */
+  function getFiltered() {
+    const date = document.getElementById('filter-date').value;
+    const slot = document.getElementById('filter-slot').value;
+    return BOOKINGS
+      .filter(b => {
+        if (date && b.date !== date) return false;
+        if (slot && b.slot !== slot) return false;
+        return true;
+      })
+      .sort((a, b) => {
+        if (a.date !== b.date) return a.date.localeCompare(b.date);
+        return a.slot.localeCompare(b.slot);
+      });
+  }
+
+  /* ── RENDER ── */
+  function render() {
+    const visible = getFiltered();
+
+    // Stats
+    updateStats();
+
+    // Count
+    const countEl = document.getElementById('bookings-count');
+    countEl.textContent = visible.length
+      ? `${visible.length} prenotazion${visible.length === 1 ? 'e' : 'i'}`
+      : '';
+
+    const list = document.getElementById('bookings-list');
+
+    if (!visible.length) {
+      list.innerHTML = `<div class="empty-state"><p>Nessuna prenotazione trovata.</p></div>`;
+      return;
+    }
+
+    list.innerHTML = visible.map(b => {
+      const statusLabel = { pending:'In attesa', confirmed:'Confermata', refused:'Rifiutata' };
+      const dateFormatted = b.date
+        ? new Date(b.date + 'T12:00:00').toLocaleDateString('it-IT', { weekday:'short', day:'numeric', month:'long' })
+        : '—';
+
+      return `
+      <div class="booking-card" id="card-${b.id}">
+        <div class="booking-card-inner">
+          <div class="booking-top">
+            <div>
+              <div class="booking-name">${esc(b.lname)} ${esc(b.fname)}</div>
+              <div class="booking-meta">
+                <span class="booking-pill date">${dateFormatted}</span>
+                <span class="booking-pill">${esc(b.slot)}</span>
+                <span class="booking-pill">${b.people} person${b.people === 1 ? 'a' : 'e'}</span>
+              </div>
+            </div>
+          </div>
+          <div class="booking-details">
+            <div class="detail-item">
+              <span class="detail-key">Telefono</span>
+              <span class="detail-val"><a href="tel:${esc(b.phone)}">${esc(b.phone)}</a></span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-key">Ricevuta il</span>
+              <span class="detail-val">${new Date(b.createdAt).toLocaleString('it-IT', {day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'})}</span>
+            </div>
+            ${b.notes ? `
+            <div class="detail-item notes-row">
+              <span class="detail-key">Note</span>
+              <span class="detail-val">${esc(b.notes)}</span>
+            </div>` : ''}
+          </div>
+        </div>
+        <div class="booking-actions">
+          <button class="btn-action btn-delete" onclick="deleteBooking('${b.id}')">Elimina</button>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  /* ── UTILS ── */
+  function esc(str) {
+    return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  let toastTimer;
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
+  }
+
+  /* ── FILTER LISTENERS ── */
+  ['filter-date','filter-slot'].forEach(id => {
+    document.getElementById(id).addEventListener('change', () => render());
+  });
+
+  /* ── AGGIORNAMENTO IN TEMPO REALE (SSE) ── */
+  function startSSE() {
+    const es = new EventSource('/api/events');
+
+    es.onmessage = e => {
+      if (e.data === 'new_booking') loadAndRender();
+    };
+
+    es.onerror = () => {
+      es.close();
+      // Se SSE cade, riprova dopo 5 secondi
+      setTimeout(startSSE, 5000);
+    };
+  }
+
+  // SSE parte solo dopo il login, quando il pannello è visibile
+  const _origLogin = doLogin;
+  doLogin = async function() {
+    await _origLogin();
+    if (document.getElementById('admin-panel').style.display === 'block') {
+      startSSE();
+    }
+  };
+</script>
+</body>
+</html>

@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Menù · Pizzeria Annarè</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --dark:       #1C1914;
+      --dark-soft:  #272119;
+      --bg:         #FDFAF5;
+      --card:       #FFFFFF;
+      --text:       #1C1410;
+      --muted:      #8A7A6E;
+      --accent:     #C4392A;
+      --border:     #EDE3D8;
+      --radius:     14px;
+      --shadow:     0 2px 10px rgba(40,20,5,.08);
+      --shadow-hv:  0 8px 28px rgba(40,20,5,.16);
+      --tab-h:      68px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: auto; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      line-height: 1.5;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* ── HERO ─────────────────────────────────────────── */
+    .hero {
+      background: var(--dark);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 6px 20px 6px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before { display: none; }
+
+    .hero-logo {
+      width: 72vw;
+      height: auto;
+      max-width: 300px;
+      object-fit: contain;
+      position: relative;
+      z-index: 1;
+      filter: drop-shadow(0 4px 18px rgba(0,0,0,.45));
+    }
+    @media (min-width: 600px) {
+      .hero-logo { width: 52vw; max-width: 340px; }
+    }
+    @media (min-width: 1024px) {
+      .hero-logo { width: 300px; max-width: 300px; }
+    }
+
+    /* ── TAB BAR ──────────────────────────────────────── */
+    .tab-bar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--dark);
+      border-bottom: 1px solid rgba(255,255,255,.10);
+    }
+
+    .tab-scroller {
+      display: flex;
+      overflow-x: auto;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+      padding: 0 8px;
+    }
+    .tab-scroller::-webkit-scrollbar { display: none; }
+
+    @media (min-width: 1024px) {
+      .tab-scroller {
+        justify-content: center;
+        overflow-x: visible;
+      }
+    }
+
+    .tab {
+      flex-shrink: 0;
+      height: var(--tab-h);
+      padding: 0 15px;
+      border: none;
+      background: none;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.8125rem;
+      font-weight: 500;
+      color: rgba(255,255,255,.45);
+      white-space: nowrap;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: color .18s, border-color .18s;
+      line-height: var(--tab-h);
+    }
+    .tab.active {
+      color: #FFFFFF;
+      border-bottom-color: rgba(255,255,255,.75);
+      font-weight: 600;
+    }
+
+    /* ── LAYOUT ───────────────────────────────────────── */
+    .menu-wrap {
+      max-width: 1140px;
+      margin: 0 auto;
+      padding: 0 14px 80px;
+    }
+    @media (min-width: 640px)  { .menu-wrap { padding: 0 20px 80px; } }
+    @media (min-width: 1024px) { .menu-wrap { padding: 0 32px 80px; } }
+
+    /* ── SECTION ──────────────────────────────────────── */
+    .cat-section { padding-top: 36px; }
+    .cat-header   { margin-bottom: 18px; }
+
+    .cat-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.3rem, 3.5vw, 1.7rem);
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      color: var(--text);
+    }
+
+    .cat-rule {
+      width: 36px;
+      height: 3px;
+      background: var(--dark);
+      border-radius: 2px;
+      margin-top: 7px;
+      opacity: .6;
+    }
+
+    /* ── GRID ─────────────────────────────────────────── */
+    .items-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+    @media (min-width: 540px)  { .items-grid { grid-template-columns: repeat(3, 1fr); gap: 14px; } }
+    @media (min-width: 900px)  { .items-grid { grid-template-columns: repeat(4, 1fr); gap: 18px; } }
+    @media (min-width: 1200px) { .items-grid { grid-template-columns: repeat(5, 1fr); } }
+
+    /* ── CARD ─────────────────────────────────────────── */
+    .card {
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      transition: transform .22s ease, box-shadow .22s ease;
+      will-change: transform;
+      opacity: 0;
+      transform: translateY(14px);
+    }
+    .card.visible { animation: cardIn .38s ease forwards; }
+
+    @keyframes cardIn {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (hover: hover) {
+      .card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--shadow-hv);
+      }
+    }
+
+    .card-thumb {
+      aspect-ratio: 1 / 1;
+      background: linear-gradient(135deg, #F2E8DA 0%, #E6D3BC 100%);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .card-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      opacity: 0;
+      transition: opacity .35s;
+    }
+    .card-thumb img.loaded { opacity: 1; }
+
+    .card-thumb-icon { display: none; }
+
+    .card-body { padding: 11px 12px 14px; }
+
+    /* badge */
+    .item-badge {
+      display: inline-block;
+      font-size: 0.6rem;
+      font-weight: 700;
+      letter-spacing: .09em;
+      text-transform: uppercase;
+      padding: 2px 7px;
+      border-radius: 20px;
+      margin-bottom: 5px;
+    }
+    .b-bianco   { background: #FFF5D6; color: #7A5C0A; }
+    .b-rosso    { background: #FCEAEA; color: #9E2A1C; }
+    .b-rose     { background: #FDE8EE; color: #A0325A; }
+    .b-birra    { background: #FFF0DB; color: #7A4E0A; }
+    .b-liquore  { background: #EDE8F8; color: #4E3580; }
+    .b-cocktail { background: #E4F4EE; color: #1A6E50; }
+
+    .card-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 0.9375rem;
+      font-weight: 600;
+      line-height: 1.3;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+
+    .card-desc {
+      font-size: 0.725rem;
+      color: var(--muted);
+      line-height: 1.45;
+      margin-bottom: 8px;
+    }
+
+    .card-price {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--accent);
+      letter-spacing: -0.01em;
+    }
+
+    /* ── FOOTER ───────────────────────────────────────── */
+    footer {
+      background: var(--dark);
+      color: rgba(255,255,255,.4);
+      text-align: center;
+      padding: 28px 20px 36px;
+      font-size: 0.8125rem;
+      line-height: 1.8;
+    }
+    footer .f-coperto {
+      font-size: 0.9375rem;
+      font-weight: 600;
+      color: rgba(255,255,255,.85);
+      margin-bottom: 4px;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── HERO ──────────────────────────────────────────── -->
+<header class="hero">
+  <a href="landing.html" style="display:block;line-height:0;">
+    <img class="hero-logo"
+         src="https://menu.pizzeriaannare.it/wp-content/uploads/2025/03/LOGO_ANNARE-300x300.png"
+         alt="Pizzeria Annarè"
+         onerror="this.style.display='none'">
+  </a>
+</header>
+
+<!-- ── TAB BAR ───────────────────────────────────────── -->
+<nav class="tab-bar" id="tabBar" aria-label="Categorie menu">
+  <div class="tab-scroller" id="tabScroller" role="tablist"></div>
+</nav>
+
+<!-- ── MENU ──────────────────────────────────────────── -->
+<main class="menu-wrap" id="menuWrap"></main>
+
+<!-- ── FOOTER ────────────────────────────────────────── -->
+<footer>
+  <p class="f-coperto">Coperto € 1,50 a persona</p>
+  <p>Pizzeria Annarè &copy; Tutti i diritti riservati</p>
+</footer>
+
+<script>
+const u = () => '';
+
+const BADGE = {
+  bianco:'Bianco', rosso:'Rosso', rose:'Rosé',
+  birra:'Birra', liquore:'Liquore', cocktail:'Cocktail'
+};
+
+/* ─────────────────────────────── DATI MENU ─────────────────────────────── */
+const MENU = [
+
+  /* ── ANTIPASTI ── */
+  {
+    id:'antipasti', title:'Antipasti e Fritti', icon:'🍟',
+    items:[
+      { name:'Jamon Serrano Reserve',        price:'7,00', desc:'Tagliere per 2 persone',                                    img:'img/antipasti/Jamon-serrano.png' },
+      { name:'Pignatiello di Parmigiana',    price:'6,00', desc:'Per 2 persone',                                             img:'img/antipasti/Pignatiello-di-parmigiana.png' },
+      { name:'Frittatina Classica',          price:'2,50', desc:'Ripiena con Prosciutto cotto e Besciamella',                img:'img/antipasti/FRITTATINA.png' },
+      { name:'Arancino 200gr',               price:'2,50', desc:'Ragù',                                                      img:'img/antipasti/ARANCINO.png' },
+      { name:'Crocchè Classico 100gr',       price:'2,00', desc:'Patate fresche',                                            img:'img/antipasti/CROCCHE.png' },
+      { name:'Patatine Small',               price:'3,50', desc:'',                                                          img:'img/antipasti/PATATINE.png' },
+    ]
+  },
+
+  /* ── MARGHERITA SPECIAL ── */
+  {
+    id:'margherita-special', title:'Margherita Special', icon:'⭐',
+    items:[
+      { name:'Margherita Illuminata',  price:'13,00', desc:"Fior di stracciata, Connubio di datterino rosso caramella e Pomodorino verde di Corbara sott'olio", img:'img/margherita-special/Margherita-illuminata.png' },
+      { name:"Margherita D'Élite",     price:'13,00', desc:'Antico pomodoro di Napoli presidio slow food, Mozzarella di Bufala, Olio Evo',        img:'img/margherita-special/13.png' },
+      { name:"Pomo D'oro",             price:'10,00', desc:'Mozzarella di Bufala, Pomodorino giallo di Corbara e Fiocco di Pomodoro in scaglie',  img:'img/margherita-special/2.png' },
+      { name:'Margherita Corbarina',   price:'10,00', desc:'Provola di Bufala, Pepe macinato fresco e Pomodoro di Corbara',                       img:'img/margherita-special/16.png' },
+    ]
+  },
+
+  /* ── PIZZE CLASSICHE ── */
+  {
+    id:'pizze-classiche', title:'Pizze Classiche', icon:'🍕',
+    items:[
+      { name:'4 Formaggi',      price:'8,50', desc:'Provola, Fior di latte, Pecorino Romano, Grana Padano, Gorgonzola, Basilico, Olio Evo, Toupè di ricotta e cialda di Parmigiano',                             img:'img/pizze-classiche/4-formaggi.png' },
+      { name:'Margherita',      price:'6,00', desc:'Pomodoro San Marzano Dop, Fior di latte, Basilico, Olio Evo',                                                                                                img:'img/pizze-classiche/9.png' },
+      { name:'Filetto',         price:'8,00', desc:'Pomodorino Datterino a filetto, Bufala Dop, Basilico, Olio Evo',                                                                                             img:'img/pizze-classiche/12.png' },
+      { name:'Napoli',          price:'7,00', desc:'Pomodoro San Marzano Dop, Origano di Sicilia, Capperi di Salina, Aglio paesano, Olive nere di Gaeta, Acciughe del Cantabrico, Basilico, Olio Evo',           img:'img/pizze-classiche/6.png' },
+      { name:'Capricciosa',     price:'9,00', desc:'Pomodoro San Marzano Dop, Fior di latte, Prosciutto cotto, Salame Napoli, Funghi Champignon, Carciofi rustici, Olive di Gaeta, Basilico, Olio Evo',          img:'img/pizze-classiche/17.png' },
+      { name:'Gustosa',         price:'8,50', desc:'Fior di latte, Melanzane saltate, Salsiccia, Scaglie di Parmigiano Reggiano',                                                                                img:'img/pizze-classiche/11.png' },
+      { name:'Baby',            price:'8,00', desc:'Fior di latte, Wurstel, Patatine stick fritte, Basilico, Olio Evo',                                                                                          img:'img/pizze-classiche/20.png' },
+      { name:'Tonno e Cipolla', price:'8,00', desc:'Fior di latte, Cipolla rossa di Tropea, Tonno di Cetara, Basilico, Olio Evo',                                                                                img:'img/pizze-classiche/tonno-e-cipolla.png' },
+      { name:'Crocchettosa',    price:'8,00', desc:'Fior di latte, Crocchè fresco della casa, Prosciutto cotto, Basilico, Olio Evo',                                                                             img:'img/pizze-classiche/15.png' },
+      { name:'Mimosa',          price:'8,00', desc:'Fior di latte, Prosciutto cotto, Panna, Mais, Basilico, Olio Evo',                                                                                           img:'img/pizze-classiche/8.png' },
+      { name:'Ortolana',        price:'9,00', desc:'Fior di latte, Melanzane a funghetto, Zucchine alla Scapece, Peperoni con capperi e olive sfumate al vino bianco',                                           img:'img/pizze-classiche/3.png' },
+      { name:'Diavola',         price:'8,50', desc:'Pomodoro San Marzano Dop, Fior di latte, Spianata piccante Dop, Basilico, Olio Evo piccante',                                                               img:'img/pizze-classiche/14.png' },
+      { name:'Bufala',          price:'8,00', desc:'Pomodoro San Marzano Dop, Mozzarella di Bufala Dop, Basilico, Olio Evo',                                                                                     img:'img/pizze-classiche/18.png' },
+    ]
+  },
+
+  /* ── PIZZE SPECIALI ── */
+  {
+    id:'pizze-speciali', title:'Pizze Speciali', icon:'✨',
+    items:[
+      { name:'Vegarè',          price:'14,00', desc:'Mozzarella vegana, Ragù vegano con antichi pomodori di Napoli, Basilico',                                                                     img:'img/pizze-speciali/Vegare.png' },
+      { name:'Annarè Food Porn',price:'13,00', desc:'Fior di latte, Mortadella Villani a Julienne, Patatine fritte crunch e Fonduta di Parmigiano',                                               img:'img/pizze-speciali/Annare-food-porn.png' },
+      { name:'Nduja Candita',   price:'12,00', desc:'Mozzarella di Bufala, Pomodorino di Corbara candito e Nduja',                                                                                img:'img/pizze-speciali/NDUJA-CANDITA.png' },
+      { name:'Crocchettosa 2.0',price:'13,00', desc:'Fior di latte, Crocchè fresco della casa, Prosciutto cotto, Crema e granella di Pistacchio e Burratina dolce di Bufala (125g)',             img:'img/pizze-speciali/CROCCHETTOSA-SPECIAL.png' },
+      { name:'Pacchetella',     price:'9,00',  desc:'Fior di latte, Pomodorino giallo di Corbara, Polvere di olive, Ciuffi di Ricotta di Bufala',                                                img:'img/pizze-speciali/4.png' },
+      { name:'Incrollabile',    price:'8,00',  desc:"Fior di latte, Provola, Scarola condita a crudo con Capperi di Salina, Olive di Gaeta e Olio Evo",                                          img:'img/pizze-speciali/10.png' },
+      { name:'Brontese',        price:'11,00', desc:'Fior di latte, Mortadella, Crema di Pistacchio, Crema di Parmigiano e ciuffi di Ricotta',                                                   img:'img/pizze-speciali/18-1-300x300.png' },
+    ]
+  },
+
+  /* ── PIZZE A RUOTO ── */
+  {
+    id:'pizze-ruoto', title:'Pizze a Ruoto', icon:'🔥',
+    items:[
+      { name:'Eccezionale',                price:'12,00', desc:'Fior di latte, Porcino fresco spadellato, Lardo di Patanegra, Maionese alla zucca',                                                                   img:'img/pizze-ruoto/Eccezionale.png' },
+      { name:'Tentazione di Jamon',        price:'13,00', desc:'Fiori di latte, Jamon Serrano Reserva, Cipolla rossa caramellata Home Made',                                                                     img:'img/pizze-ruoto/Tentazione-di-jamon.png' },
+      { name:'Porchettaccia',              price:'11,00', desc:'Fior di latte, Parmigiana di melanzane, Porchetta di Ariccia',                                                                                   img:'img/pizze-ruoto/Porchettacia.png' },
+      { name:'Scarpariello a Modo Nostro', price:'10,00', desc:'Sughetto con datterino rosso, Salsa al Basilico, Crema di Parmigiano Reggiano e grattugiata di Pecorino',                                        img:'img/pizze-ruoto/SCARPARIELLO-A-MODO-NOSTRO.png' },
+      { name:'Ben Fatta',                  price:'10,00', desc:'Fior di latte, Salsiccia e Friarielli saltati in padella',                                                                                       img:'img/pizze-ruoto/BEN-FATTA.png' },
+      { name:"'A Lardiat",                price:'12,00', desc:'Ragù di lardiata, Lardo pancettato aromatizzato al pesto di Basilico, Fonduta di Pecorino, Toupè di ricotta e Tarallo napoletano sbriciolato',   img:'img/pizze-ruoto/A-LARDIATA.png' },
+      { name:'Genovese',                   price:'12,00', desc:'Ragù di Genovese, Fior di latte e Pecorino',                                                                                                    img:'img/pizze-ruoto/GENOVESE.png' },
+      { name:'Porchettosa',                price:'10,00', desc:'Fior di latte, Provola, Porchetta e Patate al forno',                                                                                            img:'img/pizze-ruoto/PORCHETTOSA.png' },
+      { name:'Cacio e Pepe',               price:'11,00', desc:'Crema di Cacio e Pepe, Fior di latte, Guanciale affumicato e Tarallo Napoletano sbriciolato',                                                    img:'img/pizze-ruoto/CACIO-E-PEPE.png' },
+      { name:"'A Vecchiarella",           price:'10,00', desc:'Pomodorini gialli e rossi del Piennolo, Capperi, Acciughe, Olive Taggiasche in Olio Evo, Origano di montagna, Basilico',                         img:'img/pizze-ruoto/VECCHIARELLA.png' },
+      { name:'Annarè Rinforzata',          price:'11,00', desc:'Fior di latte, Ragù Napoletano, Melanzane fritte, Polpettine fritte di Scottona, Spolverata di Grana Padano, Basilico, Olio Evo',               img:'img/pizze-ruoto/ANNARE-RINFORZATA.png' },
+    ]
+  },
+
+  /* ── PANUOZZI ── */
+  {
+    id:'panuozzi', title:'Panuozzi', icon:'🥖',
+    items:[
+      { name:'Ariccia', price:'13,00', desc:'Porchetta HomeMade, Provola, Patate al forno', img:'img/panuozzi/26.png' },
+    ]
+  },
+
+  /* ── RIPIENI ── */
+  {
+    id:'ripieni', title:'Ripieni', icon:'🫓',
+    items:[
+      { name:'Ripieno Cicoli e Ricotta', price:'8,00',  desc:'Cicoli Napoletani, Provola, Ricotta di Bufala, Pomodoro', img:'img/ripieni/23.png' },
+      { name:'Ripieno Scarola',          price:'8,00',  desc:'Fior di latte, Provola, Scarola condita a crudo',        img:'img/ripieni/22.png' },
+      { name:'Ripieno Tipico',           price:'8,00',  desc:'Provola, Ricotta, Pepe nero, Salame Napoli',             img:'img/ripieni/24.png' },
+    ]
+  },
+
+  /* ── BIBITE ── */
+  {
+    id:'bibite', title:'Bibite', icon:'🥤',
+    items:[
+      { name:'Acqua Naturale Panna',          price:'2,50', desc:'', img:'img/bibite/acqua-panna.png' },
+      { name:'Acqua Frizzante San Pellegrino',price:'2,50', desc:'', img:'img/bibite/acqua-san-pellegrino.png' },
+      { name:'Coca Cola',                     price:'2,50', desc:'', img:'img/bibite/coca-cola.png' },
+      { name:'Coca Cola Zero',                price:'2,50', desc:'', img:'img/bibite/coca-cola-zero.png' },
+      { name:'Fanta',                         price:'2,50', desc:'', img:'img/bibite/fanta.png' },
+      { name:'Aranciata Bio',                 price:'3,50', desc:'', img:'img/bibite/aranciata-bio.png' },
+    ]
+  },
+
+  /* ── DRINK ── */
+  {
+    id:'drink', title:'Drink', icon:'🍹',
+    items:[
+      { name:'Negroni',    price:'7,00', desc:'Bitter Fusetti, Vermouth Punt e Mes, Gin JJ Whitley, Acqua — Alc. 19%',   img:'img/drink/negroni.png',    badge:'cocktail' },
+      { name:'Cuba Libre', price:'7,00', desc:'Coca Cola, Rum Pampero scuro e succo di Limone — Alc. 10%',               img:'img/drink/cuba-libre.png', badge:'cocktail' },
+      { name:'Red Spritz', price:'7,00', desc:'Bitter Fusetti, Prosecco, Soda — Alc. 9%',                                img:'img/drink/red-spritz.png', badge:'cocktail' },
+      { name:'Gin Tonic',  price:'7,00', desc:'Gin JJ Whitley, Tonica, Essenza di Rosmarino — Alc. 10%',                 img:'img/drink/gin-tonic.png',  badge:'cocktail' },
+    ]
+  },
+
+  /* ── VINI BIANCHI ── */
+  {
+    id:'vini-bianchi', title:'Vini Bianchi', icon:'🥂',
+    items:[
+      { name:'Falanghina Levato',      price:'15,00', desc:'Fresco e minerale, note agrumate e floreali con sentori di mela e pera. Mineralità vulcanica del terroir campano.',                              img:'img/vini-bianchi/falanghina-levato.png',           badge:'bianco' },
+      { name:'Gewurztraminer Goldener',price:'20,00', desc:'Intensamente aromatico, rose, litchi e frutta tropicale. Acidità alpina elegante con finale leggermente amaricante.',                            img:'img/vini-bianchi/goldener-1.png',                  badge:'bianco' },
+      { name:'Blu Vermentino',         price:'18,00', desc:'Fresco e minerale con delicata frutta e note di mandorla, affinato sulle fecce fini per un carattere setoso.',                                  img:'img/vini-bianchi/BLU-VERMENTINO.png',              badge:'bianco' },
+      { name:'Pàtera Falanghina',      price:'18,00', desc:"Aromatico e vivace con note di fiori d'agrumi, nuances tropicali e complessità minerale dei suoli vulcanici campani.",                           img:'img/vini-bianchi/PATERA-FALANGHINA.png',           badge:'bianco' },
+      { name:'Munazei Paestum',        price:'22,00', desc:"Strutturato ed elegante con nocciola e mela, arricchito da note mielate e spezie che evocano l'antica tradizione di Paestum.",                  img:'img/vini-bianchi/MUNAZEI-PAESTUM.png',             badge:'bianco' },
+      { name:'Fiano Le due tenute',    price:'10,00', desc:'Ricco e avvolgente con note mielate, frutta tropicale e carattere sapido. Bianco complesso di grande personalità.',                              img:'img/vini-bianchi/FIANO-LE-DUE-TENUTE.png',         badge:'bianco' },
+      { name:'Chardonnay Biologico',   price:'15,00', desc:'Chardonnay da agricoltura biologica, agrumi e fiori bianchi bilanciati da legno delicato e sfumature di vaniglia.',                              img:'img/vini-bianchi/chardonnay-2.png',                badge:'bianco' },
+      { name:'Rosé Tenuta Sannella',   price:'15,00', desc:'Rosato da Primitivo in macerazione a freddo, fresco e fruttato con carattere aromatico vivace e finale pulito.',                                 img:'img/vini-bianchi/rose-sannella.png',               badge:'rose' },
+    ]
+  },
+
+  /* ── VINI ROSSI ── */
+  {
+    id:'vini-rossi', title:'Vini Rossi', icon:'🍷',
+    items:[
+      { name:'Primitivo Tenuta Sannella',           price:'15,00', desc:'Corposo con frutti di bosco maturi, spezie calde e cioccolato fondente. Tannini setosi e finale persistente.',                          img:'img/vini-rossi/primitivo-sannella.png',                    badge:'rosso' },
+      { name:'Nero di Malies',                      price:'25,00', desc:'Intenso e avvolgente con more, ciliegie e prugne, note di liquirizia e cuoio su una struttura tannica decisa.',                         img:'img/vini-rossi/NERO-DI-MALIES.png',                        badge:'rosso' },
+      { name:'Aglianico Le due tenute',             price:'10,00', desc:'Pieno e tannico con profonda frutta scura e sottofondo minerale e speziato. Nato per l\'invecchiamento.',                               img:'img/vini-rossi/AGLIANICO.png',                             badge:'rosso' },
+      { name:'Munazei Lacryma Christi del Vesuvio', price:'22,00', desc:'Elegante Piedirosso con sentori di fumo e sale avvolti da frutti rossi, tannini gentili e beva irresistibile.',                         img:'img/vini-rossi/MUNAZEI-LACRYMA-CHRISTI-DEL-VESUVIO.png',  badge:'rosso' },
+      { name:'Arcaia Petra',                        price:'20,00', desc:'Primitivo ricco di prugna, mora e cioccolato fondente con cannella e cedro. Pieno, succoso e avvolgente.',                              img:'img/vini-rossi/arcaia-petra.png',                          badge:'rosso' },
+      { name:'Voluptas Falerno del Massico',        price:'25,00', desc:'Primitivo dal colore rubino intenso, note balsamiche e minerali, tannini vellutati e aromi di ciliegia e frutta secca.',               img:'img/vini-rossi/voluptas.png',                              badge:'rosso' },
+      { name:'Gaurasi Falerno del Massico',         price:'25,00', desc:'Blend Aglianico-Piedirosso che omaggia il leggendario Falerno, con frutta rossa, note floreali e tannini raffinati.',                  img:'img/vini-rossi/gaurasi.png',                               badge:'rosso' },
+      { name:'Volpicella Doc Le Pezze',             price:'20,00', desc:'Rubino brillante con ciliegia e lampone maturi, vellutato al palato con piacevole carattere fruttato e leggermente tostato.',           img:'img/vini-rossi/volpicella-le-petre-2.png',                 badge:'rosso' },
+    ]
+  },
+
+  /* ── BOLLICINE ── */
+  {
+    id:'bollicine', title:'Bollicine', icon:'🥂',
+    items:[
+      { name:'Franciacorta Prestige Docg Cuvèe',      price:'50,00', desc:'Lombardia', img:'img/bollicine/Cuvee.png' },
+      { name:'Prosecco Extra Dry',                    price:'20,00', desc:'Veneto',    img:'img/bollicine/Prosecco-Extra-dry.png' },
+      { name:'Bollicine Millesimato Extra Dry Carati', price:'15,00', desc:'',         img:'img/bollicine/extra-dry.png' },
+    ]
+  },
+
+  /* ── BIRRE ── */
+  {
+    id:'birre', title:'Birre', icon:'🍺',
+    items:[
+      { name:'Heineken',               price:'3,00', desc:'', img:'img/birre/heineken.png',               badge:'birra' },
+      { name:'Leffe Blonde',           price:'4,00', desc:'', img:'img/birre/leffe-blonde.png',           badge:'birra' },
+      { name:'Leffe Rouge',            price:'4,00', desc:'', img:'img/birre/leffe-rouge.png',            badge:'birra' },
+      { name:'Pils Pitburger',         price:'3,50', desc:'', img:'img/birre/PILS-PITBURGER.png',         badge:'birra' },
+      { name:'La Guillotine',          price:'5,00', desc:'', img:'img/birre/LA-GUILLOTINE.png',          badge:'birra' },
+      { name:'Riegele Weizen',         price:'5,00', desc:'', img:'img/birre/birra-riegele.png',          badge:'birra' },
+      { name:'Birra Agricola Ambrata', price:'5,00', desc:'', img:'img/birre/birra-agricola-ambrata.png', badge:'birra' },
+      { name:'Birra Agricola',         price:'4,50', desc:'', img:'img/birre/birra-agricola.png',         badge:'birra' },
+      { name:'Corsedonk Agnus',        price:'5,00', desc:'', img:'img/birre/CORSENDONK-AGNUS.png',       badge:'birra' },
+      { name:'White Riot',             price:'5,00', desc:'', img:'img/birre/WHITE-RIOT.png',             badge:'birra' },
+      { name:'Apa Simco',              price:'5,00', desc:'', img:'img/birre/APA-SIMCO.png',              badge:'birra' },
+      { name:'Tipa',                   price:'5,00', desc:'', img:'img/birre/TIPA.png',                   badge:'birra' },
+      { name:'Spitfire',               price:'4,50', desc:'', img:'img/birre/Spitfire.png',               badge:'birra' },
+    ]
+  },
+
+  /* ── DIGESTIVI ── */
+  {
+    id:'digestivi', title:'Digestivi', icon:'☕',
+    items:[
+      { name:'Caffè',                price:'1,00', desc:'', img:'img/digestivi/33.png' },
+      { name:"Ambrata d'Angera",     price:'5,00', desc:'', img:'img/digestivi/AMBRATA-DANGERA.png',   badge:'liquore' },
+      { name:"Giovane d'Angera",     price:'5,00', desc:'', img:'img/digestivi/GIOVANE-DANGERA.png',   badge:'liquore' },
+      { name:'Ratafia di Amarene',   price:'5,00', desc:'', img:'img/digestivi/RATAFIA-DI-AMARENE.png',badge:'liquore' },
+      { name:"Amaretto D'Angera",    price:'5,00', desc:'', img:'img/digestivi/AMARETTO-DANGERA.png',  badge:'liquore' },
+      { name:'Stille',               price:'5,00', desc:'', img:'img/digestivi/STILLE.png',            badge:'liquore' },
+      { name:'Amaro Calamaro',       price:'5,00', desc:'', img:'img/digestivi/AMARO-CALAMARO.png',    badge:'liquore' },
+      { name:'Prosum Pompei',        price:'5,50', desc:'', img:'img/digestivi/PROSUM-POMPEI.png',     badge:'liquore' },
+      { name:'Amaro del Ciclista',   price:'5,00', desc:'', img:'img/digestivi/AMARO-DEL-CICLISTA.png',badge:'liquore' },
+      { name:'Mannamaru',            price:'6,00', desc:'', img:'img/digestivi/MANNAMARU.png',         badge:'liquore' },
+    ]
+  }
+];
+
+/* ─────────────────────────────── BUILD DOM ─────────────────────────────── */
+function buildMenu() {
+  const scroller = document.getElementById('tabScroller');
+  const wrap     = document.getElementById('menuWrap');
+
+  MENU.forEach(cat => {
+
+    /* TAB */
+    const tab = document.createElement('button');
+    tab.className   = 'tab';
+    tab.textContent = cat.title;
+    tab.dataset.id  = cat.id;
+    tab.setAttribute('role', 'tab');
+    tab.addEventListener('click', () => goToSection(cat.id));
+    scroller.appendChild(tab);
+
+    /* SECTION */
+    const sec = document.createElement('section');
+    sec.className         = 'cat-section';
+    sec.id                = cat.id;
+    sec.dataset.sectionId = cat.id;
+    sec.innerHTML = `<div class="cat-header"><h2 class="cat-title">${cat.title}</h2><div class="cat-rule"></div></div>`;
+
+    const grid = document.createElement('div');
+    grid.className = 'items-grid';
+    cat.items.forEach((item, i) => grid.appendChild(buildCard(item, cat.icon, i)));
+    sec.appendChild(grid);
+
+    wrap.appendChild(sec);
+  });
+}
+
+function buildCard(item, icon, idx) {
+  const card = document.createElement('article');
+  card.className = 'card';
+  card.style.animationDelay = Math.min(idx * 45, 360) + 'ms';
+
+  /* thumb */
+  const thumb = document.createElement('div');
+  thumb.className = 'card-thumb';
+
+  const fallback = document.createElement('div');
+  fallback.className   = 'card-thumb-icon';
+  fallback.textContent = icon;
+  thumb.appendChild(fallback);
+
+  if (item.img) {
+    const img = document.createElement('img');
+    img.alt        = item.name;
+    img.dataset.src = item.img;
+    img.onload     = () => img.classList.add('loaded');
+    img.onerror    = () => { img.style.display = 'none'; };
+    thumb.appendChild(img);
+  }
+
+  /* body */
+  const body = document.createElement('div');
+  body.className = 'card-body';
+  let html = '';
+  if (item.badge) html += `<div class="item-badge b-${item.badge}">${BADGE[item.badge]}</div>`;
+  html += `<div class="card-name">${item.name}</div>`;
+  if (item.desc) html += `<div class="card-desc">${item.desc}</div>`;
+  html += `<div class="card-price">€ ${item.price}</div>`;
+  body.innerHTML = html;
+
+  card.appendChild(thumb);
+  card.appendChild(body);
+  return card;
+}
+
+/* ─────────────────────────────── SCROLL ────────────────────────────────── */
+function goToSection(id) {
+  const el   = document.getElementById(id);
+  const tabH = document.getElementById('tabBar').offsetHeight;
+  if (!el) return;
+  const top = el.getBoundingClientRect().top + window.scrollY - tabH - 6;
+  window.scrollTo({ top, behavior: 'smooth' });
+}
+
+/* ─────────────────────────────── ACTIVE TAB ────────────────────────────── */
+function setupObserver() {
+  const tabH = document.getElementById('tabBar').offsetHeight;
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (!e.isIntersecting) return;
+      const id = e.target.dataset.sectionId;
+      document.querySelectorAll('.tab').forEach(t => {
+        const active = t.dataset.id === id;
+        t.classList.toggle('active', active);
+        if (active) t.scrollIntoView({ behavior:'smooth', block:'nearest', inline:'center' });
+      });
+    });
+  }, { rootMargin:`-${tabH + 2}px 0px -55% 0px`, threshold:0 });
+  document.querySelectorAll('.cat-section').forEach(s => obs.observe(s));
+}
+
+/* ─────────────────────────────── LAZY IMG ──────────────────────────────── */
+function setupLazy() {
+  const obs = new IntersectionObserver((entries, o) => {
+    entries.forEach(e => {
+      if (!e.isIntersecting) return;
+      const img = e.target;
+      if (img.dataset.src) { img.src = img.dataset.src; delete img.dataset.src; }
+      o.unobserve(img);
+    });
+  }, { rootMargin:'200px' });
+  document.querySelectorAll('img[data-src]').forEach(img => obs.observe(img));
+}
+
+/* ─────────────────────────────── CARD REVEAL ───────────────────────────── */
+function setupReveal() {
+  const obs = new IntersectionObserver((entries, o) => {
+    entries.forEach(e => {
+      if (!e.isIntersecting) return;
+      e.target.classList.add('visible');
+      o.unobserve(e.target);
+    });
+  }, { rootMargin:'0px 0px -40px 0px', threshold:0.05 });
+  document.querySelectorAll('.card').forEach(c => obs.observe(c));
+}
+
+/* ─────────────────────────────── INIT ──────────────────────────────────── */
+buildMenu();
+setupObserver();
+setupLazy();
+setupReveal();
+document.querySelector('.tab')?.classList.add('active');
+</script>
+</body>
+</html>

@@ -1,0 +1,42 @@
+[
+  {
+    "id": 1774614808722,
+    "date": "2026-03-27",
+    "slot": "20:00",
+    "people": 2,
+    "fname": "Giovann",
+    "lname": "ommenie",
+    "email": "gg@gmail.com",
+    "phone": "1234567890",
+    "notes": "allergie e gg",
+    "status": "confirmed",
+    "createdAt": "2026-03-27T12:33:28.722Z"
+  },
+  {
+    "id": 1774614832819,
+    "date": "2026-03-27",
+    "slot": "20:00",
+    "people": 2,
+    "fname": "Martina",
+    "lname": "Gg",
+    "email": "marti@gmail.com",
+    "phone": "3571428960",
+    "notes": "Ggggg",
+    "status": "refused",
+    "createdAt": "2026-03-27T12:33:52.819Z"
+  },
+    {
+    "id": 1774414832819,
+    "date": "2026-03-27",
+    "slot": "20:00",
+    "people": 2,
+    "fname": "Martina",
+    "lname": "Gg",
+    "email": "marti@gmail.com",
+    "phone": "3571428960",
+    "notes": "Ggggg",
+    "status": "refused",
+    "createdAt": "2026-03-27T12:33:52.819Z"
+  }
+]
+

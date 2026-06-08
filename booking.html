@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Prenota — Pizzeria Annarè</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+    :root {
+      --dark:   #1C1914;
+      --accent: #C4392A;
+      --cream:  #FDFAF5;
+      --cream2: #F5EDE0;
+      --text:   #1C1410;
+      --muted:  #7A6B5E;
+      --border: #E2D5C5;
+      --radius: 16px;
+      --error:  #C4392A;
+      --ok:     #2E7D52;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      min-height: 100vh;
+      background: var(--dark);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 28px 16px 48px;
+      font-family: 'DM Sans', sans-serif;
+      color: var(--text);
+    }
+
+    /* ── CARD ── */
+    .card {
+      width: 100%;
+      max-width: 720px;
+      background: var(--dark);
+      border-radius: 24px;
+      overflow: hidden;
+      box-shadow: 0 4px 32px rgba(0,0,0,.28), 0 1px 3px rgba(0,0,0,.1);
+    }
+
+    /* ── HEADER ── */
+    .card-head {
+      background: var(--dark);
+      padding: 32px 32px 28px;
+      text-align: center;
+      position: relative;
+    }
+    .card-head a { display: inline-block; line-height: 0; }
+    .card-head img { width: 120px; height: 120px; object-fit: contain; }
+    .card-head h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: #fff;
+      margin-top: 14px;
+      letter-spacing: -.02em;
+    }
+    .card-head p {
+      font-size: .8125rem;
+      color: rgba(255,255,255,.45);
+      margin-top: 5px;
+      letter-spacing: .06em;
+    }
+
+    /* ── FORM BODY ── */
+    .card-body { padding: 32px; background: var(--cream); }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+    .form-row.one { grid-template-columns: 1fr; }
+
+    .field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+    .field label {
+      font-size: .75rem;
+      font-weight: 600;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .field input,
+    .field select,
+    .field textarea {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      background: #fff;
+      font-family: 'DM Sans', sans-serif;
+      font-size: .9375rem;
+      color: var(--text);
+      transition: border-color .18s, box-shadow .18s;
+      outline: none;
+      appearance: none;
+      -webkit-appearance: none;
+    }
+    .field select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237A6B5E' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 14px center;
+      padding-right: 36px;
+      cursor: pointer;
+    }
+    .field textarea { resize: vertical; min-height: 88px; line-height: 1.5; }
+    .field input:focus, .field select:focus, .field textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(196,57,42,.1);
+    }
+    .field input.err, .field select.err { border-color: var(--error); }
+
+    /* numero persone stepper */
+    .stepper {
+      display: flex;
+      align-items: center;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      background: #fff;
+      overflow: hidden;
+    }
+    .stepper button {
+      width: 44px;
+      height: 44px;
+      border: none;
+      background: none;
+      font-size: 1.2rem;
+      color: var(--accent);
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: background .15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .stepper button:hover { background: var(--cream2); }
+    .stepper span {
+      flex: 1;
+      text-align: center;
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    /* slot picker */
+    .slot-group { display: flex; gap: 10px; }
+    .slot-btn {
+      flex: 1;
+      padding: 12px;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      background: #fff;
+      font-family: 'DM Sans', sans-serif;
+      font-size: .9375rem;
+      font-weight: 500;
+      color: var(--muted);
+      cursor: pointer;
+      transition: all .18s;
+      text-align: center;
+    }
+    .slot-btn.active {
+      border-color: var(--accent);
+      background: rgba(196,57,42,.06);
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    /* disclaimer */
+    .disclaimer {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      background: var(--cream2);
+      border-radius: 10px;
+      padding: 12px 14px;
+      margin-bottom: 24px;
+      font-size: .8rem;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+    .disclaimer svg { flex-shrink: 0; margin-top: 1px; }
+
+    /* submit */
+    .btn-submit {
+      width: 100%;
+      padding: 15px;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 50px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: .875rem;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background .2s, transform .15s, box-shadow .2s;
+      box-shadow: 0 4px 16px rgba(196,57,42,.35);
+    }
+    .btn-submit:hover { background: #A8301E; transform: translateY(-1px); box-shadow: 0 6px 22px rgba(196,57,42,.45); }
+    .btn-submit:active { transform: translateY(0); }
+
+    /* ── SUCCESS ── */
+    .success {
+      background: var(--cream);
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 48px 32px 40px;
+    }
+    .success.show { display: flex; }
+    .success-icon {
+      width: 72px;
+      height: 72px;
+      background: rgba(46,125,82,.12);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+    .success-icon svg { width: 36px; height: 36px; stroke: var(--ok); }
+    .success h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 10px;
+    }
+    .success p { font-size: .9375rem; color: var(--muted); line-height: 1.65; }
+    .success .recap {
+      background: var(--cream2);
+      border-radius: 14px;
+      padding: 18px 20px;
+      margin: 20px 0 24px;
+      text-align: left;
+      width: 100%;
+      font-size: .875rem;
+      line-height: 1.7;
+      color: var(--text);
+    }
+    .success .recap strong { color: var(--accent); }
+    .btn-back {
+      padding: 12px 28px;
+      border: 1.5px solid var(--border);
+      border-radius: 50px;
+      background: none;
+      font-family: 'DM Sans', sans-serif;
+      font-size: .8125rem;
+      font-weight: 600;
+      color: var(--muted);
+      cursor: pointer;
+      transition: border-color .18s, color .18s;
+    }
+    .btn-back:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* ── FOOTER ── */
+    .card-foot {
+      background: var(--dark);
+      padding: 16px 24px;
+      text-align: center;
+      font-size: .75rem;
+      color: rgba(255,255,255,.3);
+    }
+
+    @media (max-width: 420px) {
+      .card-body { padding: 24px 20px; }
+      .form-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="card">
+
+  <!-- HEADER -->
+  <div class="card-head">
+    <a href="landing.html">
+      <img src="https://menu.pizzeriaannare.it/wp-content/uploads/2025/03/LOGO_ANNARE-300x300.png"
+           alt="Pizzeria Annarè" onerror="this.style.display='none'">
+    </a>
+    <h1>Prenota un Tavolo</h1>
+    <p>Riserva il tuo posto da Annarè</p>
+  </div>
+
+  <!-- FORM -->
+  <div class="card-body" id="formWrap">
+    <form id="bookingForm" novalidate>
+
+      <!-- Data + Orario -->
+      <div class="form-row">
+        <div class="field">
+          <label>Data</label>
+          <input type="date" id="date" required>
+        </div>
+        <div class="field">
+          <label>Fascia oraria</label>
+          <div class="slot-group">
+            <button type="button" class="slot-btn active" data-slot="20:00">20:00</button>
+            <button type="button" class="slot-btn" data-slot="21:30">21:30</button>
+          </div>
+          <input type="hidden" id="slot" value="20:00">
+        </div>
+      </div>
+
+      <!-- Persone -->
+      <div class="field">
+        <label>Numero di persone</label>
+        <div class="stepper">
+          <button type="button" id="minus">−</button>
+          <span id="peopleVal">2</span>
+          <button type="button" id="plus">+</button>
+        </div>
+        <input type="hidden" id="people" value="2">
+      </div>
+
+      <!-- Nome + Cognome -->
+      <div class="form-row">
+        <div class="field">
+          <label>Nome</label>
+          <input type="text" id="fname" placeholder="Mario" required>
+        </div>
+        <div class="field">
+          <label>Cognome</label>
+          <input type="text" id="lname" placeholder="Rossi" required>
+        </div>
+      </div>
+
+      <!-- Telefono -->
+      <div class="field form-row one">
+        <label>Telefono</label>
+        <input type="tel" id="phone" placeholder="3330000000" required maxlength="10" inputmode="numeric">
+      </div>
+
+      <!-- Note -->
+      <div class="field form-row one">
+        <label>Richieste particolari <span style="font-weight:400;text-transform:none;letter-spacing:0">(opzionale)</span></label>
+        <textarea id="notes" placeholder="Allergie, seggiolone, tavolo esterno…"></textarea>
+      </div>
+
+      <!-- Disclaimer -->
+      <div class="disclaimer">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+        Il tavolo viene tenuto riservato per 30 minuti dall'orario scelto.
+      </div>
+
+      <button type="submit" class="btn-submit">Conferma Prenotazione</button>
+    </form>
+  </div>
+
+  <!-- SUCCESS -->
+  <div class="success" id="successWrap">
+    <div class="success-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="20 6 9 17 4 12"/>
+      </svg>
+    </div>
+    <h2>Prenotazione inviata!</h2>
+    <p>La tua prenotazione è stata ricevuta.<br>Ti aspettiamo da Annarè!</p>
+    <div class="recap" id="recapBox"></div>
+    <button class="btn-back" onclick="resetForm()">← Nuova prenotazione</button>
+  </div>
+
+  <div class="card-foot">Pizzeria Annarè · Via Elena 114, Macerata Campania (CE)</div>
+</div>
+
+<script>
+  // ── Min date = today ───────────────────────────────────────
+  const dateEl = document.getElementById('date');
+  const today  = new Date().toISOString().split('T')[0];
+  dateEl.min   = today;
+  dateEl.value = today;
+
+  // ── Slot buttons ──────────────────────────────────────────
+  document.querySelectorAll('.slot-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.slot-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('slot').value = btn.dataset.slot;
+    });
+  });
+
+  // ── Stepper ───────────────────────────────────────────────
+  let people = 2;
+  document.getElementById('minus').addEventListener('click', () => {
+    if (people > 1) { people--; sync(); }
+  });
+  document.getElementById('plus').addEventListener('click', () => {
+    if (people < 20) { people++; sync(); }
+  });
+  function sync() {
+    document.getElementById('peopleVal').textContent = people;
+    document.getElementById('people').value = people;
+  }
+
+  // ── Validation ────────────────────────────────────────────
+  function validate() {
+    let ok = true;
+
+    ['date','fname','lname','phone'].forEach(id => {
+      const el = document.getElementById(id);
+      if (!el.value.trim()) { el.classList.add('err'); ok = false; }
+      else el.classList.remove('err');
+    });
+
+    // Phone: exactly 10 digits
+    const phoneEl = document.getElementById('phone');
+    const digits = phoneEl.value.replace(/\D/g, '');
+    if (phoneEl.value.trim() && digits.length !== 10) {
+      phoneEl.classList.add('err'); ok = false;
+    }
+
+    return ok;
+  }
+
+  // ── Submit ────────────────────────────────────────────────
+  document.getElementById('bookingForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    if (!validate()) return;
+
+    const btn = document.querySelector('.btn-submit');
+    btn.disabled = true;
+    btn.textContent = 'Invio in corso…';
+
+    const booking = {
+      id:     Date.now(),
+      date:   document.getElementById('date').value,
+      slot:   document.getElementById('slot').value,
+      people: +document.getElementById('people').value,
+      fname:  document.getElementById('fname').value.trim(),
+      lname:  document.getElementById('lname').value.trim(),
+      phone:  document.getElementById('phone').value.replace(/\D/g,''),
+      notes:  document.getElementById('notes').value.trim(),
+      status: 'confirmed',
+      createdAt: new Date().toISOString()
+    };
+
+    // Save to server
+    try {
+      await fetch('/api/bookings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(booking)
+      });
+    } catch (err) {
+      console.warn('Errore salvataggio:', err);
+    }
+
+    btn.disabled = false;
+    btn.textContent = 'Conferma Prenotazione';
+
+    // Show success
+    const d = new Date(booking.date + 'T12:00:00');
+    const dateStr = d.toLocaleDateString('it-IT', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+    document.getElementById('recapBox').innerHTML = `
+      <strong>Nome:</strong> ${booking.fname} ${booking.lname}<br>
+      <strong>Data:</strong> ${dateStr}<br>
+      <strong>Orario:</strong> ${booking.slot}<br>
+      <strong>Persone:</strong> ${booking.people}<br>
+      <strong>Telefono:</strong> ${booking.phone}
+      ${booking.notes ? `<br><strong>Note:</strong> ${booking.notes}` : ''}
+    `;
+
+    document.getElementById('formWrap').style.display = 'none';
+    const sw = document.getElementById('successWrap');
+    sw.classList.add('show');
+    sw.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+
+  // ── Reset ─────────────────────────────────────────────────
+  function resetForm() {
+    document.getElementById('bookingForm').reset();
+    dateEl.value = today;
+    people = 2; sync();
+    document.querySelectorAll('.slot-btn').forEach((b,i) => b.classList.toggle('active', i===0));
+    document.getElementById('slot').value = '20:00';
+    document.querySelectorAll('.err').forEach(el => el.classList.remove('err'));
+    document.getElementById('successWrap').classList.remove('show');
+    document.getElementById('formWrap').style.display = '';
+  }
+
+  // ── Strip non-digits from phone input ──────────────────────
+  document.getElementById('phone').addEventListener('input', function() {
+    this.value = this.value.replace(/\D/g, '').slice(0, 10);
+    this.classList.remove('err');
+  });
+
+  // ── Remove err on input ───────────────────────────────────
+  document.querySelectorAll('input:not(#phone), select, textarea').forEach(el => {
+    el.addEventListener('input', () => el.classList.remove('err'));
+  });
+</script>
+
+</body>
+</html>
